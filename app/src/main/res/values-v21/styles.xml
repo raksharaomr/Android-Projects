@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="RakshaPortfolioTheme" parent="RakshaPortfolioTheme.Base">
+        <item name="android:colorButtonNormal">@color/button_color</item>
+    </style>
+</resources>

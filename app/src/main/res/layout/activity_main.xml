@@ -1,0 +1,66 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MainActivity">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/title_tv"
+            android:textSize="@dimen/abc_text_size_large_material"
+            android:gravity="center_horizontal"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:id="@+id/textView" />
+
+        <Button
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
+            android:text="Spotify streamer"
+            android:id="@+id/spotify_streamer_button"
+            android:onClick="openSpotifyStreamer"/>
+
+        <Button
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
+            android:text="Scores App"
+            android:onClick="openScoresApp"
+            android:id="@+id/scores_app_button" />
+        <Button
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
+            android:text="Library App"
+            android:id="@+id/library_app_button"
+            android:onClick="openLibraryApp"/>
+        <Button
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
+            android:text="Build It Bigger"
+            android:id="@+id/build_it_bigger_button"
+            android:onClick="openBuildItBigger"/>
+        <Button
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
+            android:text="XYZ Reader"
+            android:id="@+id/xyz_reader_button"
+            android:onClick="openXyzReader"/>
+        <Button
+            android:layout_width="300dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
+            android:text="Capstone: My Own App"
+            android:id="@+id/capstone_button"
+            android:onClick="openCapstone"/>
+    </LinearLayout>
+</ScrollView>
