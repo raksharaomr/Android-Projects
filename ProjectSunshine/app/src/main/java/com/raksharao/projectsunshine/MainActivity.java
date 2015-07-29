@@ -1,5 +1,9 @@
 package com.raksharao.projectsunshine;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -52,10 +56,25 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
             return true;
+        } else if(id == R.id.action_show_map) {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            String postCode = getLocationPref();
+            intent.setData(Uri.parse("geo=0,0?q=" + postCode));
+            if(intent.resolveActivity(getPackageManager()) != null) {
+                startActivity(intent);
+            }
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private String getLocationPref() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        return settings.getString(getString(R.string.locationSettingsKey),
+                getString(R.string.locationDefaultValue));
     }
 
 }

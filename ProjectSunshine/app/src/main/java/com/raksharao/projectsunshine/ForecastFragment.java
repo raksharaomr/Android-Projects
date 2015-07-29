@@ -4,9 +4,12 @@ package com.raksharao.projectsunshine;
  * Created by raksharaomr on 7/5/15.
  */
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
 import android.util.Log;
@@ -16,6 +19,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -28,7 +32,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,12 +58,7 @@ public class ForecastFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        List<String> forecastList = new ArrayList();
-        forecastList.add("Today-Sunny-70/63");
-        forecastList.add("Tomorrow-Sunny-70/63");
-        forecastList.add("Tuesday-Windy-60/55");
-        forecastList.add("Wednesday-Cloudy-60/50");
-        forecastList.add("Thursday-Sunny-75/63");
+        final List<String> forecastList = new ArrayList();
 
         mForecastAdapter = new ArrayAdapter<String>(
                 getActivity(),
@@ -71,8 +69,14 @@ public class ForecastFragment extends Fragment {
 
         ListView forecastListView = (ListView)rootView.findViewById(R.id.list_view_forecast);
         forecastListView.setAdapter(mForecastAdapter);
-
-
+        forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getActivity(), DetailActivity.class)
+                        .putExtra(Intent.EXTRA_TEXT, mForecastAdapter.getItem(position));
+                startActivity(intent);
+            }
+        });
         return rootView;
     }
 
@@ -88,13 +92,29 @@ public class ForecastFragment extends Fragment {
         int id = item.getItemId();
 
         if(id == R.id.action_refresh) {
-            FetchWeatherTask fetchWeatherTask = new FetchWeatherTask();
-
-            String postCode = "92782";
-            fetchWeatherTask.execute(postCode);
+            updateWeather();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onStart() {
+        updateWeather();
+        super.onStart();
+    }
+
+    private void updateWeather() {
+        FetchWeatherTask fetchWeatherTask = new FetchWeatherTask();
+
+        String postCode = getLocationPref();
+        fetchWeatherTask.execute(postCode);
+    }
+
+    private String getLocationPref() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        return settings.getString(getString(R.string.locationSettingsKey),
+                getString(R.string.locationDefaultValue));
     }
 
     public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
@@ -117,6 +137,10 @@ public class ForecastFragment extends Fragment {
 
             String highLowStr = roundedHigh + "/" + roundedLow;
             return highLowStr;
+        }
+
+        private double getTemperatureInFahren(double temperature) {
+            return (temperature * 9/5) + 32;
         }
 
         /**
@@ -185,7 +209,14 @@ public class ForecastFragment extends Fragment {
                 double high = temperatureObject.getDouble(OWM_MAX);
                 double low = temperatureObject.getDouble(OWM_MIN);
 
-                highAndLow = formatHighLows(high, low);
+                SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                String temperaturePref = settings.getString(getString(R.string.temperatureSettingsKey),
+                        getString(R.string.temperatureSettingsDefaultValue));
+                if(temperaturePref.equals("Imperial")) {
+                    highAndLow = formatHighLows(getTemperatureInFahren(high), getTemperatureInFahren(low));
+                } else {
+                    highAndLow = formatHighLows(high, low);
+                }
                 resultStrs[i] = day + " - " + description + " - " + highAndLow;
             }
 
