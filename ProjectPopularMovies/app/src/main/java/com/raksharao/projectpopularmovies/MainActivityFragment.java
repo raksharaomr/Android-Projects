@@ -1,7 +1,10 @@
 package com.raksharao.projectpopularmovies;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,20 +14,19 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 import android.widget.GridView;
 
-import org.json.JSONException;
+import com.google.gson.Gson;
+import com.raksharao.projectpopularmovies.models.MovieResult;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -32,6 +34,11 @@ import java.util.List;
  * A placeholder fragment containing a simple view.
  */
 public class MainActivityFragment extends Fragment {
+
+    public static final String MOVIE_ID = "com.raksharao.projectpopularmovies.MainActivityFragment.MOVIE_ID";
+    private MovieImageAdapter mImageAdapter;
+    private List<String> movieImagePaths;
+    private MovieResult movieResult;
 
     public MainActivityFragment() {
     }
@@ -49,15 +56,24 @@ public class MainActivityFragment extends Fragment {
 
         GridView moviesGridView = (GridView) rootView.findViewById(R.id.gv_movies);
 
-        List<String> testMovieNames = new ArrayList<String>(Arrays.asList("Mad Max", "Inside Out", "Star Wars", "Avengers"));
-        ArrayAdapter<String> movieAdapter = new ArrayAdapter<String>(
-                getActivity(),
-                R.layout.grid_view_item,
-                R.id.tv_grid_item,
-                testMovieNames
+        movieImagePaths = new ArrayList<>();
+        mImageAdapter = new MovieImageAdapter(
+            getActivity(),
+            movieImagePaths
         );
 
-        moviesGridView.setAdapter(movieAdapter);
+        moviesGridView.setAdapter(mImageAdapter);
+
+        moviesGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                int movieId = movieResult.getResults().get(position).getId();
+                Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+                intent.putExtra(MOVIE_ID, movieId);
+                startActivity(intent);
+            }
+        });
         return rootView;
     }
 
@@ -72,27 +88,51 @@ public class MainActivityFragment extends Fragment {
 
         int id = item.getItemId();
         if(id == R.id.action_refresh) {
-            FetchMovieDataTask fetchMovieDataTask = new FetchMovieDataTask();
-            fetchMovieDataTask.execute();
+            updateMovieThumbnails();
+            return true;
+        } else
+        if (id == R.id.action_settings) {
+            Intent intent = new Intent(this.getActivity(), SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public class FetchMovieDataTask extends AsyncTask<Void, Void, Void> {
+    @Override
+    public void onStart() {
+        updateMovieThumbnails();
+        super.onStart();
+    }
+
+    public void updateMovieThumbnails() {
+        FetchMovieDataTask fetchMovieDataTask = new FetchMovieDataTask();
+        fetchMovieDataTask.execute();
+    }
+
+    private String getSortingPref() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this.getActivity());
+        return settings.getString("SortingOrderKey", "Most Popular");
+    }
+
+    public class FetchMovieDataTask extends AsyncTask<Void, Void, MovieResult> {
 
         private final String LOG_CATEGORY = FetchMovieDataTask.class.getSimpleName();
 
         @Override
-        protected Void doInBackground(Void... params) {
+        protected MovieResult doInBackground(Void... params) {
             HttpURLConnection httpURLConnection = null;
             BufferedReader bufferedReader = null;
 
             String movieDataJsonString = null;
             try {
-                String sortOrder = "popularity.desc";
-                String apiKey = "{API_KEY_HERE}";
-
+                String sortOrder = "";
+                if (getSortingPref().equals("Most Popular")) {
+                    sortOrder = "popularity.desc";
+                } else if (getSortingPref().equals("Highest Rated")) {
+                    sortOrder = "vote_average.desc";
+                }
+                String apiKey = "4defca6ee7be68c2803bd4d1a11b5cdd";
 
                 final String BASE_URL = "http://api.themoviedb.org/3/discover/movie";
                 final String SORT_PARAM = "sort_by";
@@ -116,13 +156,13 @@ public class MainActivityFragment extends Fragment {
                 }
 
                 bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                String line;
-                while((line = bufferedReader.readLine()) != null) {
-                    stringBuffer.append(line + "\n");
-                }
 
-                movieDataJsonString = stringBuffer.toString();
-                Log.v(LOG_CATEGORY, "Json received = " + movieDataJsonString);
+                Gson gson = new Gson();
+
+                movieResult = gson.fromJson(bufferedReader, MovieResult.class);
+
+                return movieResult;
+
             } catch (IOException e) {
                 Log.e(LOG_CATEGORY, "Error receiving JSON", e);
             } finally{
@@ -142,8 +182,15 @@ public class MainActivityFragment extends Fragment {
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
+        protected void onPostExecute(MovieResult movieResult) {
+            movieImagePaths = new ArrayList<>();
+
+            for (MovieResult.Result result : movieResult.getResults()) {
+                movieImagePaths.add(result.getPosterPath());
+            }
+
+            mImageAdapter.updateImagePaths(movieImagePaths);
+            super.onPostExecute(movieResult);
         }
     }
 }
