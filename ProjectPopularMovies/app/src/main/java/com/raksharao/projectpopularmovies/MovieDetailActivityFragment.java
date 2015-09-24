@@ -1,5 +1,6 @@
 package com.raksharao.projectpopularmovies;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -13,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.raksharao.projectpopularmovies.models.MovieDetail;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,11 +33,14 @@ import java.net.URL;
  */
 public class MovieDetailActivityFragment extends Fragment {
 
+    private Context mContext;
+
     private TextView originalTitleTextView;
     private ImageView movieThumbnailImageView;
     private TextView movieRelDateTextView;
     private TextView userRatingTextView;
     private TextView plotSynopsisTextView;
+    private TextView movieDuration;
     private String LOG_CATEGORY = "movieDetailActivityFragment";
     private int mMovieId;
 
@@ -47,6 +52,8 @@ public class MovieDetailActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
 
+        mContext = this.getActivity().getApplicationContext();
+
         Intent intent = getActivity().getIntent();
         mMovieId = intent.getIntExtra(MainActivityFragment.MOVIE_ID, -1);
 
@@ -55,6 +62,7 @@ public class MovieDetailActivityFragment extends Fragment {
         movieRelDateTextView = (TextView) rootView.findViewById(R.id.tv_movie_rel_date);
         userRatingTextView = (TextView) rootView.findViewById(R.id.tv_user_rating);
         plotSynopsisTextView = (TextView) rootView.findViewById(R.id.tv_plot_synopsis);
+        movieDuration = (TextView) rootView.findViewById(R.id.tv_duration);
 
         FetchMovieDetailsTask fetchMovieDetailsTask = new FetchMovieDetailsTask();
         fetchMovieDetailsTask.execute(mMovieId);
@@ -80,12 +88,10 @@ public class MovieDetailActivityFragment extends Fragment {
 
                 String apiKey = "4defca6ee7be68c2803bd4d1a11b5cdd";
 
-                final String BASE_URL = "http://api.themoviedb.org/3/find/" + String.valueOf(params[0]);
-                final String EXT_SRC_PARAM = "external_source";
+                final String BASE_URL = "http://api.themoviedb.org/3/movie/" + String.valueOf(params[0]);
                 final String API_KEY_PARAM = "api_key";
 
                 Uri uri = Uri.parse(BASE_URL).buildUpon()
-                        .appendQueryParameter(EXT_SRC_PARAM, "imdb_id")
                         .appendQueryParameter(API_KEY_PARAM, apiKey)
                         .build();
 
@@ -143,22 +149,26 @@ public class MovieDetailActivityFragment extends Fragment {
         @Override
         protected void onPostExecute(MovieDetail movieDetail) {
             originalTitleTextView.setText(movieDetail.getOriginalTitle());
-            movieRelDateTextView.setText(movieDetail.getRelDate());
-            userRatingTextView.setText(movieDetail.getUserRating());
+            movieRelDateTextView.setText(movieDetail.getRelDate().substring(0, 4));
+            userRatingTextView.setText(movieDetail.getUserRating() + "/10");
             plotSynopsisTextView.setText(movieDetail.getPlotSynopsis());
+            movieDuration.setText(String.valueOf(Integer.getInteger(movieDetail.getDuration())/60));
+
+            String fullPath = "http://image.tmdb.org/t/p/" + "w500" + movieDetail.getPosterPath();
+            Picasso.with(mContext).load(fullPath).into(movieThumbnailImageView);
         }
 
         private MovieDetail getMovieDetailFromJsonString(String movieDetailJsonStr) throws JSONException {
             MovieDetail movieDetail = new MovieDetail();
 
             JSONObject movieJson = new JSONObject(movieDetailJsonStr);
-            JSONArray movieDetailArray = movieJson.getJSONArray("movie_results");
 
-            movieDetail.setOriginalTitle(movieDetailArray.getJSONObject(0).getString("original_title"))
-                .setPosterPath(movieDetailArray.getJSONObject(0).getString("poster_path"))
-                .setRelDate(movieDetailArray.getJSONObject(0).getString("release_date"))
-                .setUserRating(movieDetailArray.getJSONObject(0).getString("vote_average"))
-                .setPlotSynopsis(movieDetailArray.getJSONObject(0).getString("overview"));
+            movieDetail.setOriginalTitle(movieJson.getString("original_title"))
+                .setPosterPath(movieJson.getString("poster_path"))
+                .setRelDate(movieJson.getString("release_date"))
+                .setUserRating(movieJson.getString("vote_average"))
+                .setPlotSynopsis(movieJson.getString("overview"))
+                .setDuration(movieJson.getString("runtime"));
 
             return movieDetail;
         }

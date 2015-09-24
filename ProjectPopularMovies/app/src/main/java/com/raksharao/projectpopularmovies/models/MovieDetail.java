@@ -9,6 +9,7 @@ public class MovieDetail {
     private String relDate;
     private String userRating;
     private String plotSynopsis;
+    private String duration;
 
     public String getOriginalTitle() {
         return originalTitle;
@@ -47,5 +48,12 @@ public class MovieDetail {
     public MovieDetail setPlotSynopsis(String plotSynopsis) {
         this.plotSynopsis = plotSynopsis;
         return this;
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+    public void setDuration(String duration) {
+        this.duration = duration;
     }
 }
