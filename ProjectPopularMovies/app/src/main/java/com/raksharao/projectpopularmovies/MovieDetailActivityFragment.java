@@ -152,7 +152,7 @@ public class MovieDetailActivityFragment extends Fragment {
             movieRelDateTextView.setText(movieDetail.getRelDate().substring(0, 4));
             userRatingTextView.setText(movieDetail.getUserRating() + "/10");
             plotSynopsisTextView.setText(movieDetail.getPlotSynopsis());
-            movieDuration.setText(String.valueOf(Integer.getInteger(movieDetail.getDuration())/60));
+            movieDuration.setText(movieDetail.getDuration() + " mins");
 
             String fullPath = "http://image.tmdb.org/t/p/" + "w500" + movieDetail.getPosterPath();
             Picasso.with(mContext).load(fullPath).into(movieThumbnailImageView);

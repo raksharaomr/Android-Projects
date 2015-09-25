@@ -1,16 +1,25 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
-    tools:context=".MainActivityFragment"
-    android:id="@+id/gv_fragment"
-    android:orientation="horizontal">
+    android:layout_width="match_parent"
+    android:fillViewport="true"
+    android:scrollbars="vertical">
 
-
-    <GridView
-        android:layout_width="match_parent"
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/gv_movies"
-        android:numColumns="auto_fit"
-        android:gravity="center"/>
+        tools:context=".MainActivityFragment"
+        android:id="@+id/gv_fragment"
+        android:orientation="horizontal">
 
-</FrameLayout>
+
+        <GridView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/gv_movies"
+            android:numColumns="auto_fit"
+            android:gravity="center"/>
+
+    </FrameLayout>
+
+</ScrollView>
