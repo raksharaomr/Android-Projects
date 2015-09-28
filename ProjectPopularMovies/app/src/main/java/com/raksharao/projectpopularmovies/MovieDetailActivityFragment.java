@@ -86,7 +86,8 @@ public class MovieDetailActivityFragment extends Fragment {
 
             try {
 
-                String apiKey = "4defca6ee7be68c2803bd4d1a11b5cdd";
+                //TODO Insert API Key
+                String apiKey = "";
 
                 final String BASE_URL = "http://api.themoviedb.org/3/movie/" + String.valueOf(params[0]);
                 final String API_KEY_PARAM = "api_key";
