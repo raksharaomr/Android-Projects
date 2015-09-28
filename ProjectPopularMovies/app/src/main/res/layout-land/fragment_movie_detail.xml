@@ -24,8 +24,10 @@
             android:textStyle="bold"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:id="@+id/tv_movie_rel_date"
-            android:layout_marginTop="119dp"
-            android:layout_alignParentTop="true"
+            android:layout_marginTop="39dp"
+            android:layout_below="@+id/tv_original_title"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_toRightOf="@+id/iv_movie_thumbnail"
             android:layout_toEndOf="@+id/iv_movie_thumbnail" />
 
@@ -34,8 +36,9 @@
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:id="@+id/tv_user_rating"
-            android:layout_marginTop="53dp"
             android:layout_below="@+id/tv_movie_rel_date"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_toRightOf="@+id/iv_movie_thumbnail"
             android:layout_toEndOf="@+id/iv_movie_thumbnail" />
 
@@ -73,7 +76,9 @@
             android:textSize="@dimen/abc_text_size_large_material"
             android:textStyle="italic"
             android:id="@+id/tv_duration"
-            android:layout_above="@+id/tv_plot_synopsis"
+            android:layout_below="@+id/tv_user_rating"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_toRightOf="@+id/iv_movie_thumbnail"
             android:layout_toEndOf="@+id/iv_movie_thumbnail" />
     </RelativeLayout>

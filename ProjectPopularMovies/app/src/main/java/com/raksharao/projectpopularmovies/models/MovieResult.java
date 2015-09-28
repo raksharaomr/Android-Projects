@@ -1,5 +1,9 @@
 package com.raksharao.projectpopularmovies.models;
 
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
@@ -7,7 +11,10 @@ import java.util.List;
 /**
  * Created by raksharaomr on 7/31/15.
  */
-public class MovieResult {
+public class MovieResult implements Parcelable {
+
+    private static String KEY_ID = "id";
+    private static String KEY_POSTER_PATH = "posterPath";
 
     @SerializedName("page")
     int pageNumber;
@@ -22,6 +29,19 @@ public class MovieResult {
     int totalResults;
 
     Result result = new Result();
+
+    public MovieResult() {
+
+    }
+
+    public MovieResult(int id, String posterPath) {
+        this.result.id = id;
+        this.result.posterPath = posterPath;
+    }
+
+    public  String getPosterPath() {
+        return this.result.getPosterPath();
+    }
     public int getPageNumber() {
         return pageNumber;
     }
@@ -57,7 +77,36 @@ public class MovieResult {
         this.totalResults = totalResults;
     }
 
-    public class Result {
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        Bundle bundle = new Bundle();
+
+        bundle.putString(KEY_POSTER_PATH, result.getPosterPath());
+        bundle.putInt(KEY_ID, result.getId());
+        dest.writeBundle(bundle);
+    }
+
+    public static final Parcelable.Creator<Result> CREATOR = new Creator<Result>() {
+        @Override
+        public Result createFromParcel(Parcel source) {
+            Bundle bundle = source.readBundle();
+
+            return new Result(bundle.getInt(KEY_ID), bundle.getString(KEY_POSTER_PATH));
+        }
+
+        @Override
+        public Result[] newArray(int size) {
+            return new Result[size];
+        }
+    };
+
+    public static class Result {
+
         boolean adult;
 
         @SerializedName("backdrop_path")
@@ -91,6 +140,15 @@ public class MovieResult {
 
         @SerializedName("vote_count")
         int voteCount;
+
+        public Result() {
+
+        }
+
+        public Result(int id, String posterPath) {
+            this.id = id;
+            this.posterPath = posterPath;
+        }
 
         public boolean isAdult() {
             return adult;
@@ -217,7 +275,5 @@ public class MovieResult {
             voteCount = voteCount;
             return this;
         }
-
-
     }
 }

@@ -35,9 +35,12 @@ import java.util.List;
  */
 public class MainActivityFragment extends Fragment {
 
+    private static String KEY_MOVIE_RESULTS_LIST = "movieResults";
+
     public static final String MOVIE_ID = "com.raksharao.projectpopularmovies.MainActivityFragment.MOVIE_ID";
     private MovieImageAdapter mImageAdapter;
-    private List<String> movieImagePaths;
+    private ArrayList <MovieResult> movieImagePaths;
+
     private MovieResult movieResult;
 
     public MainActivityFragment() {
@@ -56,7 +59,12 @@ public class MainActivityFragment extends Fragment {
 
         GridView moviesGridView = (GridView) rootView.findViewById(R.id.gv_movies);
 
-        movieImagePaths = new ArrayList<>();
+        if (savedInstanceState != null) {
+            movieImagePaths = savedInstanceState.getParcelableArrayList(KEY_MOVIE_RESULTS_LIST);
+        } else {
+            movieImagePaths = new ArrayList<>();
+        }
+
         mImageAdapter = new MovieImageAdapter(
             getActivity(),
             movieImagePaths
@@ -68,13 +76,19 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                int movieId = movieResult.getResults().get(position).getId();
-                Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
-                intent.putExtra(MOVIE_ID, movieId);
-                startActivity(intent);
+            int movieId = movieResult.getResults().get(position).getId();
+            Intent intent = new Intent(getActivity(), MovieDetailActivity.class);
+            intent.putExtra(MOVIE_ID, movieId);
+            startActivity(intent);
             }
         });
         return rootView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList(KEY_MOVIE_RESULTS_LIST, movieImagePaths);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -124,7 +138,6 @@ public class MainActivityFragment extends Fragment {
             HttpURLConnection httpURLConnection = null;
             BufferedReader bufferedReader = null;
 
-            String movieDataJsonString = null;
             try {
                 String sortOrder = "";
                 if (getSortingPref().equals("Most Popular")) {
@@ -132,7 +145,8 @@ public class MainActivityFragment extends Fragment {
                 } else if (getSortingPref().equals("Highest Rated")) {
                     sortOrder = "vote_average.desc";
                 }
-                String apiKey = "4defca6ee7be68c2803bd4d1a11b5cdd";
+                //TODO Insert AP KEY
+                String apiKey = "";
 
                 final String BASE_URL = "http://api.themoviedb.org/3/discover/movie";
                 final String SORT_PARAM = "sort_by";
@@ -185,8 +199,12 @@ public class MainActivityFragment extends Fragment {
         protected void onPostExecute(MovieResult movieResult) {
             movieImagePaths = new ArrayList<>();
 
-            for (MovieResult.Result result : movieResult.getResults()) {
-                movieImagePaths.add(result.getPosterPath());
+            for (int i = 0; i < movieResult.getResults().size(); i++) {
+                MovieResult tempMovieResult = new MovieResult(
+                    movieResult.getResults().get(i).getId(),
+                    movieResult.getResults().get(i).getPosterPath()
+                );
+                movieImagePaths.add(tempMovieResult);
             }
 
             mImageAdapter.updateImagePaths(movieImagePaths);

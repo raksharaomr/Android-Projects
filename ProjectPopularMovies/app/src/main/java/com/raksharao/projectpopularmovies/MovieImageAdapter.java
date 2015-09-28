@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
+import com.raksharao.projectpopularmovies.models.MovieResult;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -18,18 +19,17 @@ import java.util.List;
 public class MovieImageAdapter extends BaseAdapter {
 
     private Context context;
-    private List<String> imagePaths;
+    private List<MovieResult> imagePaths;
 
-    public MovieImageAdapter(Context context, List<String> imagePaths) {
+    public MovieImageAdapter(Context context, List<MovieResult> imagePaths) {
         this.context = context;
         this.imagePaths = imagePaths;
     }
 
-    public void updateImagePaths(List<String> imagePaths) {
+    public void updateImagePaths(List<MovieResult> imagePaths) {
         System.out.println(this.imagePaths);
         this.imagePaths.clear();
         this.imagePaths.addAll(imagePaths);
-        System.out.println(this.imagePaths);
         this.notifyDataSetChanged();
     }
 
@@ -61,7 +61,7 @@ public class MovieImageAdapter extends BaseAdapter {
         }
         ImageView imageView = (ImageView) gridView.findViewById(R.id.gv_thumbnail_image_view);
 
-        String fullPath = "http://image.tmdb.org/t/p/" + "w500" + imagePaths.get(position);
+        String fullPath = "http://image.tmdb.org/t/p/" + "w" + imagePaths.get(position).getPosterPath();
         Log.v("Adapter", fullPath);
         Picasso.with(context).load(fullPath).into(imageView);
         return gridView;
