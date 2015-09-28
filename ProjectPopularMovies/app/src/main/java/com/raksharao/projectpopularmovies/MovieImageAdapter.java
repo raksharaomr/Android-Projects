@@ -61,7 +61,7 @@ public class MovieImageAdapter extends BaseAdapter {
         }
         ImageView imageView = (ImageView) gridView.findViewById(R.id.gv_thumbnail_image_view);
 
-        String fullPath = "http://image.tmdb.org/t/p/" + "w" + imagePaths.get(position).getPosterPath();
+        String fullPath = "http://image.tmdb.org/t/p/" + "w500" + imagePaths.get(position).getPosterPath();
         Log.v("Adapter", fullPath);
         Picasso.with(context).load(fullPath).into(imageView);
         return gridView;

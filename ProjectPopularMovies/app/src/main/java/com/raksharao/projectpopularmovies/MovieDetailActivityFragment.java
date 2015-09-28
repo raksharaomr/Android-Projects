@@ -16,7 +16,6 @@ import android.widget.TextView;
 import com.raksharao.projectpopularmovies.models.MovieDetail;
 import com.squareup.picasso.Picasso;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,6 +32,9 @@ import java.net.URL;
  */
 public class MovieDetailActivityFragment extends Fragment {
 
+    private static final String KEY_MOVIE_DETAIL = "movieDetail";
+
+    private MovieDetail mMovieDetail;
     private Context mContext;
 
     private TextView originalTitleTextView;
@@ -64,10 +66,20 @@ public class MovieDetailActivityFragment extends Fragment {
         plotSynopsisTextView = (TextView) rootView.findViewById(R.id.tv_plot_synopsis);
         movieDuration = (TextView) rootView.findViewById(R.id.tv_duration);
 
-        FetchMovieDetailsTask fetchMovieDetailsTask = new FetchMovieDetailsTask();
-        fetchMovieDetailsTask.execute(mMovieId);
+        if (savedInstanceState != null) {
+            mMovieDetail = savedInstanceState.getParcelable(KEY_MOVIE_DETAIL);
+        } else {
+            FetchMovieDetailsTask fetchMovieDetailsTask = new FetchMovieDetailsTask();
+            fetchMovieDetailsTask.execute(mMovieId);
+        }
 
         return rootView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(KEY_MOVIE_DETAIL, mMovieDetail);
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -123,7 +135,6 @@ public class MovieDetailActivityFragment extends Fragment {
                     return null;
                 }
 
-                Log.i(LOG_CATEGORY, stringBuffer.toString());
                 MovieDetail movieDetail = getMovieDetailFromJsonString(stringBuffer.toString());
                 return movieDetail;
 
@@ -160,18 +171,18 @@ public class MovieDetailActivityFragment extends Fragment {
         }
 
         private MovieDetail getMovieDetailFromJsonString(String movieDetailJsonStr) throws JSONException {
-            MovieDetail movieDetail = new MovieDetail();
+            mMovieDetail = new MovieDetail();
 
             JSONObject movieJson = new JSONObject(movieDetailJsonStr);
 
-            movieDetail.setOriginalTitle(movieJson.getString("original_title"))
+            mMovieDetail.setOriginalTitle(movieJson.getString("original_title"))
                 .setPosterPath(movieJson.getString("poster_path"))
                 .setRelDate(movieJson.getString("release_date"))
                 .setUserRating(movieJson.getString("vote_average"))
                 .setPlotSynopsis(movieJson.getString("overview"))
                 .setDuration(movieJson.getString("runtime"));
 
-            return movieDetail;
+            return mMovieDetail;
         }
     }
 }
