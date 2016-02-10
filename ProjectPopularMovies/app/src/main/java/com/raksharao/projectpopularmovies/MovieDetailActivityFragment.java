@@ -10,10 +10,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.raksharao.projectpopularmovies.models.MovieDetail;
+import com.raksharao.projectpopularmovies.models.MovieResult;
+import com.raksharao.projectpopularmovies.models.MovieReview;
+import com.raksharao.projectpopularmovies.models.MovieTrailer;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -30,13 +36,16 @@ import java.net.URL;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MovieDetailActivityFragment extends Fragment {
+public class MovieDetailActivityFragment extends Fragment implements View.OnClickListener {
 
     private static final String KEY_MOVIE_DETAIL = "movieDetail";
 
     private MovieDetail mMovieDetail;
+    private MovieReview movieReview;
+    private MovieTrailer movieTrailer;
     private Context mContext;
 
+    private LinearLayout trailersLayout;
     private TextView originalTitleTextView;
     private ImageView movieThumbnailImageView;
     private TextView movieRelDateTextView;
@@ -66,13 +75,16 @@ public class MovieDetailActivityFragment extends Fragment {
         plotSynopsisTextView = (TextView) rootView.findViewById(R.id.tv_plot_synopsis);
         movieDuration = (TextView) rootView.findViewById(R.id.tv_duration);
 
+        trailersLayout = (LinearLayout) rootView.findViewById(R.id.linear_layout_trailers);
+
         if (savedInstanceState != null) {
             mMovieDetail = savedInstanceState.getParcelable(KEY_MOVIE_DETAIL);
         } else {
-            FetchMovieDetailsTask fetchMovieDetailsTask = new FetchMovieDetailsTask();
-            fetchMovieDetailsTask.execute(mMovieId);
+            getMovieDetails();
         }
 
+        Button getReviewsButton = (Button) rootView.findViewById(R.id.button_read_reviews);
+        getReviewsButton.setOnClickListener(this);
         return rootView;
     }
 
@@ -85,8 +97,31 @@ public class MovieDetailActivityFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+        getMovieDetails();
+        getMovieTrailers();
+    }
+
+    private void getMovieDetails() {
         FetchMovieDetailsTask fetchMovieDetailsTask = new FetchMovieDetailsTask();
         fetchMovieDetailsTask.execute(mMovieId);
+    }
+
+    private void getMovieReviews(View v) {
+        FetchMovieReviewsTask fetchMovieReviewsTask = new FetchMovieReviewsTask();
+        fetchMovieReviewsTask.execute(mMovieId);
+    }
+
+    private void getMovieTrailers() {
+        FetchMovieTrailersTask fetchMovieTrailersTask = new FetchMovieTrailersTask();
+        fetchMovieTrailersTask.execute(mMovieId);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()) {
+            case R.id.button_read_reviews: getMovieReviews(v);
+                break;
+        }
     }
 
     public class FetchMovieDetailsTask extends AsyncTask<Integer, Void, MovieDetail> {
@@ -99,7 +134,8 @@ public class MovieDetailActivityFragment extends Fragment {
             try {
 
                 //TODO Insert API Key
-                String apiKey = "";
+                // String apiKey = "";
+                String apiKey = "4defca6ee7be68c2803bd4d1a11b5cdd";
 
                 final String BASE_URL = "http://api.themoviedb.org/3/movie/" + String.valueOf(params[0]);
                 final String API_KEY_PARAM = "api_key";
@@ -183,6 +219,149 @@ public class MovieDetailActivityFragment extends Fragment {
                 .setDuration(movieJson.getString("runtime"));
 
             return mMovieDetail;
+        }
+    }
+
+    public class FetchMovieReviewsTask extends AsyncTask<Integer, Void, MovieReview> {
+        @Override
+        protected MovieReview doInBackground(Integer... params) {
+            HttpURLConnection httpURLConnection = null;
+            BufferedReader bufferedReader = null;
+
+            try {
+
+                //TODO Insert API Key
+                // String apiKey = "";
+                String apiKey = "4defca6ee7be68c2803bd4d1a11b5cdd";
+
+                final String BASE_URL = "http://api.themoviedb.org/3/movie/" +
+                        String.valueOf(params[0]) +
+                        "/reviews";
+                final String API_KEY_PARAM = "api_key";
+
+                Uri uri = Uri.parse(BASE_URL).buildUpon()
+                        .appendQueryParameter(API_KEY_PARAM, apiKey)
+                        .build();
+
+                URL url = new URL(uri.toString());
+
+                httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setRequestMethod("GET");
+                httpURLConnection.connect();
+
+                InputStream inputStream = httpURLConnection.getInputStream();
+                if (inputStream == null) {
+                    return null;
+                }
+
+                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+
+                Gson gson = new Gson();
+
+                movieReview = gson.fromJson(bufferedReader, MovieReview.class);
+
+                return movieReview;
+
+            }  catch (IOException ioe) {
+                Log.e(LOG_CATEGORY, "Error receiving JSON", ioe);
+                return null;
+            } finally {
+                if (httpURLConnection != null) {
+                    httpURLConnection.disconnect();
+                }
+                if (bufferedReader != null) {
+                    try {
+                        bufferedReader.close();
+                    } catch (final IOException e) {
+                        Log.e(LOG_CATEGORY, "Error closing stream", e);
+                    }
+                }
+            }
+        }
+
+        @Override
+        protected void onPostExecute(MovieReview movieReview) {
+//            originalTitleTextView.setText(movieDetail.getOriginalTitle());
+//            movieRelDateTextView.setText(movieDetail.getRelDate().substring(0, 4));
+//            userRatingTextView.setText(movieDetail.getUserRating() + "/10");
+//            plotSynopsisTextView.setText(movieDetail.getPlotSynopsis());
+//            movieDuration.setText(movieDetail.getDuration() + " mins");
+//
+//            String fullPath = "http://image.tmdb.org/t/p/" + "w500" + movieDetail.getPosterPath();
+//            Picasso.with(mContext).load(fullPath).into(movieThumbnailImageView);
+        }
+    }
+
+    public class FetchMovieTrailersTask extends AsyncTask<Integer, Void, MovieTrailer> {
+        @Override
+        protected MovieTrailer doInBackground(Integer... params) {
+            HttpURLConnection httpURLConnection = null;
+            BufferedReader bufferedReader = null;
+
+            try {
+
+                //TODO Insert API Key
+                // String apiKey = "";
+                String apiKey = "4defca6ee7be68c2803bd4d1a11b5cdd";
+
+                final String BASE_URL = "http://api.themoviedb.org/3/movie/" +
+                        String.valueOf(params[0]) +
+                        "/videos";
+                final String API_KEY_PARAM = "api_key";
+
+                Uri uri = Uri.parse(BASE_URL).buildUpon()
+                        .appendQueryParameter(API_KEY_PARAM, apiKey)
+                        .build();
+
+                URL url = new URL(uri.toString());
+
+                httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setRequestMethod("GET");
+                httpURLConnection.connect();
+
+                InputStream inputStream = httpURLConnection.getInputStream();
+                if (inputStream == null) {
+                    return null;
+                }
+
+                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+
+                Gson gson = new Gson();
+
+                movieTrailer = gson.fromJson(bufferedReader, MovieTrailer.class);
+
+                return movieTrailer;
+
+            }  catch (IOException ioe) {
+                Log.e(LOG_CATEGORY, "Error receiving JSON", ioe);
+                return null;
+            } finally {
+                if (httpURLConnection != null) {
+                    httpURLConnection.disconnect();
+                }
+                if (bufferedReader != null) {
+                    try {
+                        bufferedReader.close();
+                    } catch (final IOException e) {
+                        Log.e(LOG_CATEGORY, "Error closing stream", e);
+                    }
+                }
+            }
+        }
+
+        @Override
+        protected void onPostExecute(MovieTrailer movieTrailer) {
+            for (MovieTrailer.Result trailer : movieTrailer.getResults()) {
+                int id = movieTrailer.getResults().indexOf(trailer) + 1;
+                TextView valueTV = new TextView(mContext);
+                valueTV.setText("Trailer " + String.valueOf(id));
+                valueTV.setId(id);
+                valueTV.setLayoutParams(new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT));
+
+                trailersLayout.addView(valueTV);
+            }
         }
     }
 }

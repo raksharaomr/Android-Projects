@@ -146,7 +146,8 @@ public class MainActivityFragment extends Fragment {
                     sortOrder = "vote_average.desc";
                 }
                 //TODO Insert AP KEY
-                String apiKey = "";
+                //String apiKey = "";
+                String apiKey = "4defca6ee7be68c2803bd4d1a11b5cdd";
 
                 final String BASE_URL = "http://api.themoviedb.org/3/discover/movie";
                 final String SORT_PARAM = "sort_by";
@@ -164,7 +165,6 @@ public class MainActivityFragment extends Fragment {
                 httpURLConnection.connect();
 
                 InputStream inputStream = httpURLConnection.getInputStream();
-                StringBuffer stringBuffer = new StringBuffer();
                 if (inputStream == null) {
                     return null;
                 }
