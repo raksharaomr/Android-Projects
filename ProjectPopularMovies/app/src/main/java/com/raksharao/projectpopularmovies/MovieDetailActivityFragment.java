@@ -1,7 +1,9 @@
 package com.raksharao.projectpopularmovies;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
@@ -350,16 +352,31 @@ public class MovieDetailActivityFragment extends Fragment implements View.OnClic
         }
 
         @Override
-        protected void onPostExecute(MovieTrailer movieTrailer) {
-            for (MovieTrailer.Result trailer : movieTrailer.getResults()) {
+        protected void onPostExecute(final MovieTrailer movieTrailer) {
+            for (final MovieTrailer.Result trailer : movieTrailer.getResults()) {
                 int id = movieTrailer.getResults().indexOf(trailer) + 1;
+
                 TextView valueTV = new TextView(mContext);
                 valueTV.setText("Trailer " + String.valueOf(id));
+                valueTV.setTextColor(Color.BLACK);
+                valueTV.setTextSize(getResources().getDimension(R.dimen.textview_text_size));
                 valueTV.setId(id);
                 valueTV.setLayoutParams(new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.MATCH_PARENT));
+                valueTV.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
 
+                        try {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + trailer.getKey()));
+                            startActivity(intent);
+                        } catch (ActivityNotFoundException ex) {
+                            String videoUrl = "https://www.youtube.com/watch?v=" + trailer.getKey();
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(videoUrl)));
+                        }
+                    }
+                });
                 trailersLayout.addView(valueTV);
             }
         }

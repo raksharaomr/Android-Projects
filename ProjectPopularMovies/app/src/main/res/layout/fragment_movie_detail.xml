@@ -100,7 +100,7 @@
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Trailers"
+            android:text="Trailers \nClick on title to watch trailer"
             android:id="@+id/tv_trailers_heading"
             android:layout_below="@+id/view"
             android:layout_alignParentLeft="true"
@@ -140,7 +140,7 @@
             android:layout_below="@+id/tv_trailers_heading"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:id="@+id/linear_layout_trailers"></LinearLayout>
+            android:id="@+id/linear_layout_trailers"/>
 
     </RelativeLayout>
 
