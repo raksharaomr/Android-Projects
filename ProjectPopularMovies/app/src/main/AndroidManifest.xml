@@ -29,10 +29,19 @@
         <activity
             android:name=".MovieDetailActivity"
             android:label="@string/title_activity_movie_detail"
+            android:launchMode="singleTop"
             android:parentActivityName=".MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.raksharao.projectpopularmovies.MainActivity" />
+        </activity>
+        <activity
+            android:name=".MovieReviewListActivity"
+            android:label="@string/title_activity_movie_review_list"
+            android:parentActivityName=".MovieDetailActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.raksharao.projectpopularmovies.MovieDetailActivity" />
         </activity>
     </application>
 

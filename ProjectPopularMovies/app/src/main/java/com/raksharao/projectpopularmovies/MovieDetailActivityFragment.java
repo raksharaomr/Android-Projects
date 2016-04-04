@@ -1,5 +1,6 @@
 package com.raksharao.projectpopularmovies;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +34,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -41,9 +44,9 @@ import java.net.URL;
 public class MovieDetailActivityFragment extends Fragment implements View.OnClickListener {
 
     private static final String KEY_MOVIE_DETAIL = "movieDetail";
+    public static final String KEY_MOVIE_ID = "movieId";
 
     private MovieDetail mMovieDetail;
-    private MovieReview movieReview;
     private MovieTrailer movieTrailer;
     private Context mContext;
 
@@ -103,14 +106,20 @@ public class MovieDetailActivityFragment extends Fragment implements View.OnClic
         getMovieTrailers();
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1) {
+            if (resultCode == Activity.RESULT_OK) {
+                mMovieId = data.getIntExtra(MainActivityFragment.MOVIE_ID, -1);
+            }
+        }
+    }
+
     private void getMovieDetails() {
         FetchMovieDetailsTask fetchMovieDetailsTask = new FetchMovieDetailsTask();
         fetchMovieDetailsTask.execute(mMovieId);
-    }
-
-    private void getMovieReviews(View v) {
-        FetchMovieReviewsTask fetchMovieReviewsTask = new FetchMovieReviewsTask();
-        fetchMovieReviewsTask.execute(mMovieId);
     }
 
     private void getMovieTrailers() {
@@ -121,7 +130,10 @@ public class MovieDetailActivityFragment extends Fragment implements View.OnClic
     @Override
     public void onClick(View v) {
         switch(v.getId()) {
-            case R.id.button_read_reviews: getMovieReviews(v);
+            case R.id.button_read_reviews:
+                Intent reviewIntent = new Intent(getActivity(), MovieReviewListActivity.class);
+                reviewIntent.putExtra(KEY_MOVIE_ID, mMovieId);
+                startActivityForResult(reviewIntent, 1);
                 break;
         }
     }
@@ -224,75 +236,6 @@ public class MovieDetailActivityFragment extends Fragment implements View.OnClic
         }
     }
 
-    public class FetchMovieReviewsTask extends AsyncTask<Integer, Void, MovieReview> {
-        @Override
-        protected MovieReview doInBackground(Integer... params) {
-            HttpURLConnection httpURLConnection = null;
-            BufferedReader bufferedReader = null;
-
-            try {
-
-                //TODO Insert API Key
-                // String apiKey = "";
-                String apiKey = "4defca6ee7be68c2803bd4d1a11b5cdd";
-
-                final String BASE_URL = "http://api.themoviedb.org/3/movie/" +
-                        String.valueOf(params[0]) +
-                        "/reviews";
-                final String API_KEY_PARAM = "api_key";
-
-                Uri uri = Uri.parse(BASE_URL).buildUpon()
-                        .appendQueryParameter(API_KEY_PARAM, apiKey)
-                        .build();
-
-                URL url = new URL(uri.toString());
-
-                httpURLConnection = (HttpURLConnection) url.openConnection();
-                httpURLConnection.setRequestMethod("GET");
-                httpURLConnection.connect();
-
-                InputStream inputStream = httpURLConnection.getInputStream();
-                if (inputStream == null) {
-                    return null;
-                }
-
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-                Gson gson = new Gson();
-
-                movieReview = gson.fromJson(bufferedReader, MovieReview.class);
-
-                return movieReview;
-
-            }  catch (IOException ioe) {
-                Log.e(LOG_CATEGORY, "Error receiving JSON", ioe);
-                return null;
-            } finally {
-                if (httpURLConnection != null) {
-                    httpURLConnection.disconnect();
-                }
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (final IOException e) {
-                        Log.e(LOG_CATEGORY, "Error closing stream", e);
-                    }
-                }
-            }
-        }
-
-        @Override
-        protected void onPostExecute(MovieReview movieReview) {
-//            originalTitleTextView.setText(movieDetail.getOriginalTitle());
-//            movieRelDateTextView.setText(movieDetail.getRelDate().substring(0, 4));
-//            userRatingTextView.setText(movieDetail.getUserRating() + "/10");
-//            plotSynopsisTextView.setText(movieDetail.getPlotSynopsis());
-//            movieDuration.setText(movieDetail.getDuration() + " mins");
-//
-//            String fullPath = "http://image.tmdb.org/t/p/" + "w500" + movieDetail.getPosterPath();
-//            Picasso.with(mContext).load(fullPath).into(movieThumbnailImageView);
-        }
-    }
 
     public class FetchMovieTrailersTask extends AsyncTask<Integer, Void, MovieTrailer> {
         @Override
