@@ -9,4 +9,7 @@
     <string name="movieSortingOrderValue">Most Popular</string>
     <string name="title_activity_movie_detail">MovieDetailActivity</string>
     <string name="title_activity_movie_review_list">MovieReviewListActivity</string>
+    <string name="shared_pref_file_name">popular_project_movies_app</string>
+    <string name="key_favorite_movies_map">key_favorite_movies_map</string>
+    <string name="title_activity_favorite_movies_list">FavoriteMoviesList</string>
 </resources>

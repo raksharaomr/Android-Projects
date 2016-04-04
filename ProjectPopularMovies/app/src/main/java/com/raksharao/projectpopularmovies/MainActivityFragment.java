@@ -1,5 +1,6 @@
 package com.raksharao.projectpopularmovies;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -18,16 +19,20 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.raksharao.projectpopularmovies.models.MovieDetail;
 import com.raksharao.projectpopularmovies.models.MovieResult;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -39,6 +44,7 @@ public class MainActivityFragment extends Fragment {
 
     public static final String MOVIE_ID = "com.raksharao.projectpopularmovies.MainActivityFragment.MOVIE_ID";
     private MovieImageAdapter mImageAdapter;
+    private Context mContext;
     private ArrayList <MovieResult> movieImagePaths;
 
     private MovieResult movieResult;
@@ -56,6 +62,7 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        mContext = this.getActivity();
 
         GridView moviesGridView = (GridView) rootView.findViewById(R.id.gv_movies);
 
@@ -140,7 +147,27 @@ public class MainActivityFragment extends Fragment {
 
             try {
                 String sortOrder = "";
-                if (getSortingPref().equals("Most Popular")) {
+                if (getSortingPref().equals("My Favorites")) {
+                    SharedPreferences sharedPref = mContext.getSharedPreferences(
+                            getString(R.string.shared_pref_file_name),
+                            Context.MODE_PRIVATE
+                    );
+
+                    String favoritesJsonString = sharedPref.getString(
+                            getString(R.string.key_favorite_movies_map),
+                            ""
+                    );
+
+                    if (favoritesJsonString == null || favoritesJsonString.isEmpty()) {
+
+                    } else {
+                        Gson gson = new Gson();
+                        Type type = new TypeToken<Map<Integer, MovieDetail>>(){}.getType();
+                        Map<Integer, MovieDetail> favoriteMoviesMap = gson.fromJson(favoritesJsonString, type);
+
+                    }
+                }
+                else if (getSortingPref().equals("Most Popular")) {
                     sortOrder = "popularity.desc";
                 } else if (getSortingPref().equals("Highest Rated")) {
                     sortOrder = "vote_average.desc";
