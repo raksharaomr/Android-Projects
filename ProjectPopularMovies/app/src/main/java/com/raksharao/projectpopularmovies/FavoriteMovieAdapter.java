@@ -1,13 +1,17 @@
 package com.raksharao.projectpopularmovies;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.raksharao.projectpopularmovies.models.MovieDetail;
 import com.raksharao.projectpopularmovies.models.MovieReview;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -16,22 +20,22 @@ import java.util.List;
  */
 public class FavoriteMovieAdapter extends BaseAdapter {
     private Context context;
-    private List<MovieReview.Result> reviews;
+    private List<MovieDetail> movieDetails;
 
-    public ReviewItemAdapter(Context context, List<MovieReview.Result> reviews) {
+    public FavoriteMovieAdapter(Context context, List<MovieDetail> movieDetails) {
         this.context = context;
-        this.reviews = reviews;
+        this.movieDetails = movieDetails;
     }
 
 
     @Override
     public int getCount() {
-        return reviews.size();
+        return movieDetails.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return reviews.get(position);
+        return movieDetails.get(position);
     }
 
     @Override
@@ -39,10 +43,10 @@ public class FavoriteMovieAdapter extends BaseAdapter {
         return 0;
     }
 
-    public void updateReviewsList(List<MovieReview.Result> reviews) {
+    public void updateReviewsList(List<MovieDetail> movieDetails) {
 
-        this.reviews.clear();
-        this.reviews.addAll(reviews);
+        this.movieDetails.clear();
+        this.movieDetails.addAll(movieDetails);
         this.notifyDataSetChanged();
     }
 
@@ -51,18 +55,17 @@ public class FavoriteMovieAdapter extends BaseAdapter {
         LayoutInflater inflater =
                 (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        View reviewListView;
+        View gridView;
         if (convertView == null) {
-            reviewListView = inflater.inflate(R.layout.review_item, null);
+            gridView = inflater.inflate(R.layout.grid_view_item, null);
         } else {
-            reviewListView = (View) convertView;
+            gridView = (View) convertView;
         }
+        ImageView imageView = (ImageView) gridView.findViewById(R.id.gv_thumbnail_image_view);
 
-        TextView authorName = (TextView) reviewListView.findViewById(R.id.tv_author_name);
-        authorName.setText("Author: " + reviews.get(position).getAuthor());
-
-        TextView reviewText = (TextView) reviewListView.findViewById(R.id.tv_review);
-        reviewText.setText(reviews.get(position).getContent());
-
-        return reviewListView;
+        String fullPath = "http://image.tmdb.org/t/p/" + "w500" + movieDetails.get(position).getPosterPath();
+        Log.v("Adapter", fullPath);
+        Picasso.with(context).load(fullPath).into(imageView);
+        return gridView;
+    }
 }

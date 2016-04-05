@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridView;
 import android.widget.ListView;
 
 
@@ -13,19 +14,20 @@ import android.widget.ListView;
  */
 public class FavoriteMoviesListFragment extends Fragment {
 
-    public FavoriteMoviesListFragment() {
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_favorite_movies_list, container, false);
-
-        ListView reviewListView = (ListView) rootView.findViewById(R.id.lv_favorite_movies);
-
-        mReviewAdapter = new ReviewItemAdapter(getActivity(), mReviews);
-        reviewListView.setAdapter(mReviewAdapter);
-
-        return rootView;
-    }
+//    private
+//    public FavoriteMoviesListFragment() {
+//    }
+//
+//    @Override
+//    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+//                             Bundle savedInstanceState) {
+//        View rootView = inflater.inflate(R.layout.fragment_favorite_movies_list, container, false);
+//
+//        GridView reviewListView = (GridView) rootView.findViewById(R.id.gv_favorite_movies);
+//
+//        mReviewAdapter = new ReviewItemAdapter(getActivity(), mReviews);
+//        reviewListView.setAdapter(mReviewAdapter);
+//
+//        return rootView;
+//    }
 }

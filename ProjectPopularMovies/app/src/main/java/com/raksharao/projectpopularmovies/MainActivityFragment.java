@@ -31,6 +31,7 @@ import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +47,8 @@ public class MainActivityFragment extends Fragment {
     private MovieImageAdapter mImageAdapter;
     private Context mContext;
     private ArrayList <MovieResult> movieImagePaths;
+    private List<MovieDetail> movieDetails = new ArrayList<>();
+    private boolean displayFavoriteMovies = false;
 
     private MovieResult movieResult;
 
@@ -74,7 +77,8 @@ public class MainActivityFragment extends Fragment {
 
         mImageAdapter = new MovieImageAdapter(
             getActivity(),
-            movieImagePaths
+            movieImagePaths,
+            displayFavoriteMovies
         );
 
         moviesGridView.setAdapter(mImageAdapter);
@@ -148,6 +152,7 @@ public class MainActivityFragment extends Fragment {
             try {
                 String sortOrder = "";
                 if (getSortingPref().equals("My Favorites")) {
+                    displayFavoriteMovies = true;
                     SharedPreferences sharedPref = mContext.getSharedPreferences(
                             getString(R.string.shared_pref_file_name),
                             Context.MODE_PRIVATE
@@ -164,15 +169,18 @@ public class MainActivityFragment extends Fragment {
                         Gson gson = new Gson();
                         Type type = new TypeToken<Map<Integer, MovieDetail>>(){}.getType();
                         Map<Integer, MovieDetail> favoriteMoviesMap = gson.fromJson(favoritesJsonString, type);
-
+                        movieDetails.addAll(favoriteMoviesMap.values());
                     }
+                    return null;
                 }
                 else if (getSortingPref().equals("Most Popular")) {
                     sortOrder = "popularity.desc";
+                    displayFavoriteMovies = false;
                 } else if (getSortingPref().equals("Highest Rated")) {
                     sortOrder = "vote_average.desc";
+                    displayFavoriteMovies = false;
                 }
-                //TODO Insert AP KEY
+                //TODO Insert API KEY
                 //String apiKey = "";
                 String apiKey = "4defca6ee7be68c2803bd4d1a11b5cdd";
 
@@ -224,17 +232,22 @@ public class MainActivityFragment extends Fragment {
 
         @Override
         protected void onPostExecute(MovieResult movieResult) {
-            movieImagePaths = new ArrayList<>();
 
-            for (int i = 0; i < movieResult.getResults().size(); i++) {
-                MovieResult tempMovieResult = new MovieResult(
-                    movieResult.getResults().get(i).getId(),
-                    movieResult.getResults().get(i).getPosterPath()
-                );
-                movieImagePaths.add(tempMovieResult);
+            if (displayFavoriteMovies) {
+                mImageAdapter.updateMovieDetails(movieDetails, displayFavoriteMovies);
+            } else {
+                movieImagePaths = new ArrayList<>();
+
+                for (int i = 0; i < movieResult.getResults().size(); i++) {
+                    MovieResult tempMovieResult = new MovieResult(
+                            movieResult.getResults().get(i).getId(),
+                            movieResult.getResults().get(i).getPosterPath()
+                    );
+                    movieImagePaths.add(tempMovieResult);
+                }
+
+                mImageAdapter.updateMovieDetails(movieImagePaths, displayFavoriteMovies);
             }
-
-            mImageAdapter.updateImagePaths(movieImagePaths);
             super.onPostExecute(movieResult);
         }
     }

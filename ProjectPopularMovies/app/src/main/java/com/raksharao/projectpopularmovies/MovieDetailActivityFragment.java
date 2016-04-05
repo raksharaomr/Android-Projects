@@ -183,7 +183,7 @@ public class MovieDetailActivityFragment extends Fragment implements View.OnClic
         sharedPrefEditor.putString(
                 getString(R.string.key_favorite_movies_map),
                 favoritesMapJsonString
-        );
+        ).commit();
     }
 
     public class FetchMovieDetailsTask extends AsyncTask<Integer, Void, MovieDetail> {
