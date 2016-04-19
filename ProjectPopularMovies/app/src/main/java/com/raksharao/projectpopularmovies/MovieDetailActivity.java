@@ -12,6 +12,12 @@ public class MovieDetailActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
+
+        MovieDetailActivityFragment fragment = new MovieDetailActivityFragment();
+
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.fragment_movie_detail_container, fragment)
+                .commit();
     }
 
 
