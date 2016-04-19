@@ -30,6 +30,7 @@ public class MovieImageAdapter extends BaseAdapter {
     }
 
     public void updateMovieDetails(List movieDetails, boolean displayFavoriteMovies) {
+        this.displayFavoriteMovies = displayFavoriteMovies;
         this.movieDetails.clear();
         if (displayFavoriteMovies) {
 

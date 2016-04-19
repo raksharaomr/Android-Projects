@@ -43,10 +43,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.raksharao.projectpopularmovies.MovieDetailActivity" />
         </activity>
-        <activity
-            android:name=".FavoriteMoviesList"
-            android:label="@string/title_activity_favorite_movies_list" >
-        </activity>
     </application>
 
 </manifest>

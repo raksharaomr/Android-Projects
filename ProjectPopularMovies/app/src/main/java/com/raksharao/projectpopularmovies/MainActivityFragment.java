@@ -169,6 +169,7 @@ public class MainActivityFragment extends Fragment {
                         Gson gson = new Gson();
                         Type type = new TypeToken<Map<Integer, MovieDetail>>(){}.getType();
                         Map<Integer, MovieDetail> favoriteMoviesMap = gson.fromJson(favoritesJsonString, type);
+                        movieDetails.clear();
                         movieDetails.addAll(favoriteMoviesMap.values());
                     }
                     return null;
